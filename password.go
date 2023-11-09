@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-func GetWord(minLength int, maxLength int) (err error, word string) {
+func GetWord(minLength int, maxLength int) (word string, err error) {
 	// Determine the number of CPU cores and constrain the number of workers to half of them
 	numCores := runtime.NumCPU()
 	numWorkers := numCores / 2
@@ -63,9 +63,9 @@ func GetWord(minLength int, maxLength int) (err error, word string) {
 	randomWord := eligible[randomIndex]
 
 	if len(eligible) == 0 {
-		return errors.New("No eligible words found."), ""
+		return "",errors.New("no eligible words found")
 	}
 
 	// fmt.Println("Randomly selected word:", randomWord)
-	return nil, randomWord
+	return randomWord, nil
 }

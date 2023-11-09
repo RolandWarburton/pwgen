@@ -19,7 +19,7 @@ func main() {
 	minLength := 2
 	maxLength := 4
 
-	err, word := GetWord(minLength, maxLength)
+	word, err := GetWord(minLength, maxLength)
 	if err != nil {
 		fmt.Println(err)
 		return
