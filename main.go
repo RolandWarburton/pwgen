@@ -27,6 +27,7 @@ func main() {
 
 	fmt.Println(word)
 
+	// print some data about memory used for debugging
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
 	fmt.Printf("Memory usage (bytes): %d\n", memStats.TotalAlloc)

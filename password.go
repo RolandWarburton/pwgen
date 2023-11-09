@@ -13,7 +13,6 @@ func GetWord(minLength int, maxLength int) (err error, word string) {
 	// Determine the number of CPU cores and constrain the number of workers to half of them
 	numCores := runtime.NumCPU()
 	numWorkers := numCores / 2
-	fmt.Printf("running with %d cores\n", numCores)
 
 	// create lines from the input string
 	lines := strings.Split(string(effWordList), "\n")
