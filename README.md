@@ -4,7 +4,7 @@
 
 I really like passwords in the format of `^(\S+-){2,}\d+$`.
 
-There are some tools that exist that meet this requirement,
+There are some nice tools that exist to meet this requirement already,
 in particular [pgen](https://github.com/ctsrc/Pgen).
 
 I wrote this one mainly as a programming exercise.
@@ -15,3 +15,7 @@ I wrote this one mainly as a programming exercise.
 * Variable number of words using CLI flags
 * Embed a word list inside the binary.
 * Decently fast and lightweight.
+
+## Credits
+
+[eff.org/dice](https://www.eff.org/dice) for a well authored word list.
