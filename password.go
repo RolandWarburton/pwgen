@@ -6,9 +6,11 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
-func GetWord(minLength int, maxLength int) (word string, err error) {
+func GetWords(minLength int, maxLength int, numberOfWords int) (words []string, err error) {
+	rand.Seed(time.Now().UnixNano())
 	// Determine the number of CPU cores and constrain the number of workers to half of them
 	numCores := runtime.NumCPU()
 	numWorkers := numCores / 2
@@ -58,14 +60,18 @@ func GetWord(minLength int, maxLength int) (word string, err error) {
 		eligible = append(eligible, word)
 	}
 
-	// Generate a random index and select a word
-	randomIndex := rand.Intn(len(eligible))
-	randomWord := eligible[randomIndex]
 
 	if len(eligible) == 0 {
-		return "",errors.New("no eligible words found")
+		return []string{}, errors.New("no eligible words found")
 	}
 
-	// fmt.Println("Randomly selected word:", randomWord)
-	return randomWord, nil
+	// Generate a random index and select a word
+	words = make([]string, numberOfWords)
+	for i := 0; i < numberOfWords; i++ {
+		randomIndex := rand.Intn(len(eligible))
+		randomWord := eligible[randomIndex]
+		words[i] = randomWord
+	}
+
+	return words, nil
 }

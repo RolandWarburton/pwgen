@@ -3,9 +3,10 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"math/rand"
-	"runtime"
-	"time"
+	"log"
+	"os"
+
+	"github.com/urfave/cli/v2"
 )
 
 var pwString string
@@ -14,22 +15,38 @@ var pwString string
 var effWordList []byte
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	var minLength int
+	var maxLength int
 
-	minLength := 2
-	maxLength := 4
+	app := &cli.App{
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:        "minLength",
+				Aliases:     []string{"min", "gt"},
+				Value:       3,
+				Usage:       "Minimum word length",
+				Destination: &minLength,
+			},
+			&cli.IntFlag{
+				Name:        "maxLength",
+				Aliases:     []string{"max", "lt"},
+				Value:       5,
+				Usage:       "Maximum word length",
+				Destination: &maxLength,
+			},
+		},
+		Action: func(cCtx *cli.Context) error {
+			words, err := GetWords(minLength, maxLength, 2)
+			if err != nil {
+				return cli.Exit(err, 1)
+			}
 
-	word, err := GetWord(minLength, maxLength)
-	if err != nil {
-		fmt.Println(err)
-		return
+			fmt.Println(words)
+			return nil
+		},
 	}
 
-	fmt.Println(word)
-
-	// print some data about memory used for debugging
-	var memStats runtime.MemStats
-	runtime.ReadMemStats(&memStats)
-	fmt.Printf("Memory usage (bytes): %d\n", memStats.TotalAlloc)
-
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
