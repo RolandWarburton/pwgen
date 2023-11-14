@@ -1,7 +1,5 @@
 # Passphrase Generator
 
-**WIP**
-
 I really like passwords in the format of `^(\S+-){2,}\d+$`.
 
 There are some nice tools that exist to meet this requirement already,
