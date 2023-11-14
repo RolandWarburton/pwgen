@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"runtime"
 	"strings"
@@ -75,7 +76,14 @@ func GetWords(minLength int, maxLength int, numberOfWords int) (words []string, 
 	return words, nil
 }
 
-func ConstructPassword(words []string, delimiter string) string {
+func getRandomSymbol() string {
+	symbols := []string{"!", "@", "#", "$", "%", "^", "&"}
+	rand.Seed(time.Now().UnixNano())
+	randomIndex := rand.Intn(len(symbols))
+	return symbols[randomIndex]
+}
+
+func ConstructPassword(words []string, delimiter string, prepended string, appended string) string {
 	password := ""
 	for i, word := range words {
 		password += word
@@ -83,5 +91,17 @@ func ConstructPassword(words []string, delimiter string) string {
 			password += delimiter
 		}
 	}
+
+	// if appended is not set then randomly generate one to increase password entropy
+	if appended == "" {
+		rand.Seed(time.Now().UnixNano())
+		randomNumber := rand.Intn(10) + 1
+		randomSymbol := getRandomSymbol()
+		appended = fmt.Sprintf("%s%d%s", delimiter, randomNumber, randomSymbol)
+	}
+
+	// add prepended and appended words to the password
+	password = fmt.Sprintf("%s%s%s", prepended, password, appended)
+
 	return password
 }
