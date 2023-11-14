@@ -48,7 +48,7 @@ func main() {
 			},
 			&cli.IntFlag{
 				Name:        "count",
-				Aliases:     []string{"n"},
+				Aliases:     []string{"n", "c"},
 				Value:       1,
 				Usage:       "Number of passwords to generate",
 				Destination: &count,
