@@ -18,6 +18,7 @@ func main() {
 	var minLength int
 	var maxLength int
 	var numberOfWords int
+	var count int
 	var delimiter string
 	var prepend string
 	var appended string
@@ -45,6 +46,13 @@ func main() {
 				Usage:       "Number of words to generate",
 				Destination: &numberOfWords,
 			},
+			&cli.IntFlag{
+				Name:        "count",
+				Aliases:     []string{"n"},
+				Value:       1,
+				Usage:       "Number of passwords to generate",
+				Destination: &count,
+			},
 			&cli.StringFlag{
 				Name:        "delimiter",
 				Aliases:     []string{"d"},
@@ -66,12 +74,21 @@ func main() {
 			},
 		},
 		Action: func(cCtx *cli.Context) error {
-			words, err := GetWords(minLength, maxLength, numberOfWords)
+			var wordsList []string
+			// generate the words list for all passwords
+			err := GenerateEligibleWords(&wordsList, minLength, maxLength, numberOfWords, count)
 			if err != nil {
 				return cli.Exit(err, 1)
 			}
 
-			fmt.Println(ConstructPassword(words, delimiter, prepend, appended))
+			// print the requested number of passwords
+			for i := 0; i < count; i++ {
+				words, err := SelectRandomWords(&wordsList, numberOfWords, i)
+				if err != nil {
+					return cli.Exit(err, 1)
+				}
+				fmt.Println(ConstructPassword(words, delimiter, prepend, appended))
+			}
 			return nil
 		},
 	}

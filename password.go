@@ -10,7 +10,12 @@ import (
 	"time"
 )
 
-func GetWords(minLength int, maxLength int, numberOfWords int) (words []string, err error) {
+// populates a slice reference with a list of random eligible words.
+// the total number of words generated will be numberOfWords*count.
+// example 2 passwords of 3 words each will produce 6 random words from
+// a total pool of eligible words from the word list.
+// an eligible word meets a min length and max length requirement
+func GenerateEligibleWords(words *[]string, minLength int, maxLength int, numberOfWords int, count int) (err error) {
 	rand.Seed(time.Now().UnixNano())
 	// Determine the number of CPU cores and constrain the number of workers to half of them
 	numCores := runtime.NumCPU()
@@ -62,15 +67,35 @@ func GetWords(minLength int, maxLength int, numberOfWords int) (words []string, 
 	}
 
 	if len(eligible) == 0 {
-		return []string{}, errors.New("no eligible words found")
+		return errors.New("no eligible words found")
+	}
+
+	// Generate a random index and select a word
+	for i := 0; i < numberOfWords*count; i++ {
+		randomIndex := rand.Intn(len(eligible))
+		*words = append(*words, eligible[randomIndex])
+	}
+
+	return nil
+}
+
+// eligibleWords will be (number of words in a password * number of passwords)
+// all the passwords are stored in a single slice.
+// the iterator aligns the slice with the current password being picked from the list.
+// imaging two passwords of two words each
+// [1,1,2,2]
+// 1+i, 1+i
+// 2+i, 2+i
+func SelectRandomWords(eligibleWords *[]string, numberOfWords int, iterator int) (words []string, err error) {
+	if len(*eligibleWords) == 0 {
+		return nil, errors.New("no eligible words found")
 	}
 
 	// Generate a random index and select a word
 	words = make([]string, numberOfWords)
 	for i := 0; i < numberOfWords; i++ {
-		randomIndex := rand.Intn(len(eligible))
-		randomWord := eligible[randomIndex]
-		words[i] = randomWord
+		rand.Seed(time.Now().UnixNano())
+		words[i] = (*eligibleWords)[iterator+i]
 	}
 
 	return words, nil
