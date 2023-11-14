@@ -38,6 +38,13 @@ pwgen --prepend 'secret-'
 # generate a password with an appended word
 pwgen --append '-secret'
 # OUTPUT: icing-prong-secret
+
+# generate 3 passwords
+pwgen -n 3
+# OUTPUT:
+# avid-union-6#
+# judge-boxer-10&
+# wham-nacho-9$
 ```
 
 ## Credits
