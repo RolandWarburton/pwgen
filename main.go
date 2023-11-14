@@ -83,7 +83,7 @@ func main() {
 
 			// print the requested number of passwords
 			for i := 0; i < count; i++ {
-				words, err := SelectRandomWords(&wordsList, numberOfWords, i)
+				words, err := SelectRandomWords(&wordsList, numberOfWords, i*numberOfWords)
 				if err != nil {
 					return cli.Exit(err, 1)
 				}
