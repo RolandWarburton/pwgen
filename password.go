@@ -60,7 +60,6 @@ func GetWords(minLength int, maxLength int, numberOfWords int) (words []string, 
 		eligible = append(eligible, word)
 	}
 
-
 	if len(eligible) == 0 {
 		return []string{}, errors.New("no eligible words found")
 	}
@@ -74,4 +73,15 @@ func GetWords(minLength int, maxLength int, numberOfWords int) (words []string, 
 	}
 
 	return words, nil
+}
+
+func ConstructPassword(words []string, delimiter string) string {
+	password := ""
+	for i, word := range words {
+		password += word
+		if i != len(words)-1 {
+			password += delimiter
+		}
+	}
+	return password
 }

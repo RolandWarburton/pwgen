@@ -57,7 +57,7 @@ func main() {
 				return cli.Exit(err, 1)
 			}
 
-			fmt.Println(words)
+			fmt.Println(ConstructPassword(words, delimiter))
 			return nil
 		},
 	}
