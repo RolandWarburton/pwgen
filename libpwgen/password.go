@@ -1,6 +1,7 @@
-package main
+package libpwgen
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -9,6 +10,9 @@ import (
 	"sync"
 	"time"
 )
+
+//go:embed eff_large_wordlist.txt
+var effWordList []byte
 
 // populates a slice reference with a list of random eligible words.
 // the total number of words generated will be numberOfWords*count.

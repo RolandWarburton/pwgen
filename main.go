@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	libpwgen "github.com/rolandwarburton/pwgen/libpwgen"
 	"log"
 	"os"
 
@@ -10,9 +11,6 @@ import (
 )
 
 var pwString string
-
-//go:embed eff_large_wordlist.txt
-var effWordList []byte
 
 func main() {
 	var minLength int
@@ -76,18 +74,18 @@ func main() {
 		Action: func(cCtx *cli.Context) error {
 			var wordsList []string
 			// generate the words list for all passwords
-			err := GenerateEligibleWords(&wordsList, minLength, maxLength, numberOfWords, count)
+			err := libpwgen.GenerateEligibleWords(&wordsList, minLength, maxLength, numberOfWords, count)
 			if err != nil {
 				return cli.Exit(err, 1)
 			}
 
 			// print the requested number of passwords
 			for i := 0; i < count; i++ {
-				words, err := SelectRandomWords(&wordsList, numberOfWords, i*numberOfWords)
+				words, err := libpwgen.SelectRandomWords(&wordsList, numberOfWords, i*numberOfWords)
 				if err != nil {
 					return cli.Exit(err, 1)
 				}
-				fmt.Println(ConstructPassword(words, delimiter, prepend, appended))
+				fmt.Println(libpwgen.ConstructPassword(words, delimiter, prepend, appended))
 			}
 			return nil
 		},
