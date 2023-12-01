@@ -53,13 +53,17 @@ Building for CLI allows you to use multiple cores to be used.
 
 You may also generate multiple passwords in a batch using `-n`.
 
-Go build -o bin/pwgen cli/main.go
+```
+go build -o bin/pwgen cli/main.go
+```
 
 ### WASM
 
 See `web` for an example use.
 
+```
 GOOS=js GOARCH=wasm go build -o ./web/main.wasm .
+```
 
 ## Credits
 
