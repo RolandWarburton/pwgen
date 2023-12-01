@@ -1,7 +1,6 @@
 package libpwgen
 
 import (
-	_ "embed"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -11,8 +10,53 @@ import (
 	"time"
 )
 
-//go:embed eff_large_wordlist.txt
-var effWordList []byte
+// populates a slice reference with a list of random eligible words.
+// the total number of words generated will be numberOfWords*count.
+// example 2 passwords of 3 words each will produce 6 random words from
+// a total pool of eligible words from the word list.
+// an eligible word meets a min length and max length requirement
+func GenerateEligibleWordsWASM(words *[]string, minLength int, maxLength int, numberOfWords int, count int) (err error) {
+	rand.Seed(time.Now().UnixNano())
+
+	// create lines from the input string
+	lines := strings.Split(string(GetWordList()), "\n")
+
+	// Create a channel to collect eligible words
+	eligibleWords := make(chan string, len(lines))
+
+	// Create a wait group to wait for all workers to finish
+	var wg sync.WaitGroup
+
+	for _, line := range lines {
+		length := len(line)
+		if length > minLength && length <= maxLength {
+			eligibleWords <- line
+		}
+	}
+
+	go func() {
+		wg.Wait()
+		close(eligibleWords)
+	}()
+
+	// Collect eligible words
+	eligible := make([]string, 0)
+	for word := range eligibleWords {
+		eligible = append(eligible, word)
+	}
+
+	if len(eligible) == 0 {
+		return errors.New("no eligible words found")
+	}
+
+	// Generate a random index and select a word
+	for i := 0; i < numberOfWords*count; i++ {
+		randomIndex := rand.Intn(len(eligible))
+		*words = append(*words, eligible[randomIndex])
+	}
+
+	return nil
+}
 
 // populates a slice reference with a list of random eligible words.
 // the total number of words generated will be numberOfWords*count.
@@ -26,7 +70,7 @@ func GenerateEligibleWords(words *[]string, minLength int, maxLength int, number
 	numWorkers := numCores / 2
 
 	// create lines from the input string
-	lines := strings.Split(string(effWordList), "\n")
+	lines := strings.Split(string(GetWordList()), "\n")
 	linesPerWorker := len(lines) / numWorkers
 
 	// Create a channel to collect eligible words

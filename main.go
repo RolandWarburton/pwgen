@@ -1,97 +1,36 @@
 package main
 
 import (
-	_ "embed"
-	"fmt"
-	libpwgen "github.com/rolandwarburton/pwgen/libpwgen"
-	"log"
-	"os"
+	"syscall/js"
 
-	"github.com/urfave/cli/v2"
+	"github.com/rolandwarburton/pwgen/libpwgen"
 )
 
-var pwString string
-
 func main() {
-	var minLength int
-	var maxLength int
-	var numberOfWords int
-	var count int
-	var delimiter string
-	var prepend string
-	var appended string
+	c := make(chan struct{}, 0)
+	js.Global().Set("pwgen", js.FuncOf(pwgen))
+	<-c
+}
 
-	app := &cli.App{
-		Flags: []cli.Flag{
-			&cli.IntFlag{
-				Name:        "minLength",
-				Aliases:     []string{"min", "gt"},
-				Value:       3,
-				Usage:       "Minimum word length",
-				Destination: &minLength,
-			},
-			&cli.IntFlag{
-				Name:        "maxLength",
-				Aliases:     []string{"max", "lt"},
-				Value:       5,
-				Usage:       "Maximum word length",
-				Destination: &maxLength,
-			},
-			&cli.IntFlag{
-				Name:        "words",
-				Aliases:     []string{"length", "w"},
-				Value:       2,
-				Usage:       "Number of words to generate",
-				Destination: &numberOfWords,
-			},
-			&cli.IntFlag{
-				Name:        "count",
-				Aliases:     []string{"n", "c"},
-				Value:       1,
-				Usage:       "Number of passwords to generate",
-				Destination: &count,
-			},
-			&cli.StringFlag{
-				Name:        "delimiter",
-				Aliases:     []string{"d"},
-				Value:       "-",
-				Usage:       "symbol to deliminate each word",
-				Destination: &delimiter,
-			},
-			&cli.StringFlag{
-				Name:        "prepend",
-				Value:       "",
-				Usage:       "Prepend a string to the start of the password",
-				Destination: &prepend,
-			},
-			&cli.StringFlag{
-				Name:        "append",
-				Value:       "",
-				Usage:       "Append a string to the end of the password",
-				Destination: &appended,
-			},
-		},
-		Action: func(cCtx *cli.Context) error {
-			var wordsList []string
-			// generate the words list for all passwords
-			err := libpwgen.GenerateEligibleWords(&wordsList, minLength, maxLength, numberOfWords, count)
-			if err != nil {
-				return cli.Exit(err, 1)
-			}
+func pwgen(this js.Value, p []js.Value) interface{} {
+	var wordsList []string
+	minLength := 3
+	maxLength := 5
+	numberOfWords := 2
+	count := 1
+	delimiter := "-"
+	prepend := ""
+	appended := ""
 
-			// print the requested number of passwords
-			for i := 0; i < count; i++ {
-				words, err := libpwgen.SelectRandomWords(&wordsList, numberOfWords, i*numberOfWords)
-				if err != nil {
-					return cli.Exit(err, 1)
-				}
-				fmt.Println(libpwgen.ConstructPassword(words, delimiter, prepend, appended))
-			}
-			return nil
-		},
+	// generate the words list
+	err := libpwgen.GenerateEligibleWordsWASM(&wordsList, minLength, maxLength, numberOfWords, count)
+	if err != nil {
+		return js.ValueOf("")
 	}
-
-	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+	words, err := libpwgen.SelectRandomWords(&wordsList, numberOfWords, 0*numberOfWords)
+	if err != nil {
+		return js.ValueOf("")
 	}
+	pw := libpwgen.ConstructPassword(words, delimiter, prepend, appended)
+	return js.ValueOf(pw)
 }
